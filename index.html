@@ -316,11 +316,12 @@ const CONFIG = {
    booked: date ranges already taken [["YYYY-MM-DD","YYYY-MM-DD"], ...]
    ===================================================================== */
 const LISTINGS = [
-  { id:1, title:"Large Renovated 1BR with Washer/Dryer", area:"Financial District", type:"Entire apartment",
+  { id:1, title:"Renovated 1BR on Pearl Street", area:"Financial District", type:"Entire apartment",
     guests:3, beds:1, bedrooms:1, baths:1, sqft:null, monthly:4500 /* TODO: confirm price */, cleaning:200, deposit:1000,
     rating:5.0, reviews:2, tag:"New", palette:["#e9e4dc","#3d4a5c","#c8a26a"],
     airbnb:"https://www.airbnb.com/rooms/1562665833295970531",
-    blurb:"Renovated, light-filled one-bedroom in the Financial District, close to Wall Street and most subway lines.",
+    photos:Array.from({length:16},(_,i)=>`photos/pearl-${i+1}.jpg`),
+    blurb:"Renovated, light-filled corner one-bedroom on Pearl Street at Coenties Slip, steps from Stone Street and Wall Street.",
     description:"A fully furnished, modern, open-concept apartment with stylish furniture, a fully equipped kitchen and lots of natural light. The bedroom has a king-size bed and a walk-in closet, and there's a washer/dryer right in the unit.\n\nIt works equally well for a work assignment or a longer stay, with high-speed Wi-Fi, a dedicated workspace and air conditioning in every room. You'll be greeted on arrival and have the whole apartment to yourself.",
     amenities:["Wi-Fi (fast)","Full kitchen","Washer/dryer in unit","Air conditioning in every room","Dedicated workspace","King-size bed","Walk-in closet","Dishwasher","Smart TV","Heating"],
     booked:[] },
