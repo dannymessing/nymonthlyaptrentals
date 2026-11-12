@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NY Monthly Apt Rentals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#1f5f4a; --brand-dark:#164636; --accent:#e8b04b;
+  --ink:#1d1d1f; --muted:#6b6b70; --line:#e6e6e8; --bg:#ffffff; --soft:#f6f5f2;
+  --radius:14px; --shadow:0 6px 24px rgba(0,0,0,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,textarea,select{font:inherit;color:inherit}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+
+/* Header */
+header{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:72px;gap:16px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;color:var(--brand);text-decoration:none;cursor:pointer}
+.logo svg{width:34px;height:34px}
+.logo small{display:block;font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.02em}
+.nav-links{display:flex;gap:6px;align-items:center}
+.nav-links button{padding:10px 14px;border-radius:999px;font-weight:500;font-size:14px}
+.nav-links button:hover{background:var(--soft)}
+.nav-links .cta{border:1px solid var(--line)}
+
+/* Hero + search */
+.hero{background:linear-gradient(180deg,#f3efe6 0%,#fff 100%);padding:44px 0 28px}
+.hero h1{font-size:clamp(28px,5vw,44px);line-height:1.1;letter-spacing:-.02em;max-width:720px}
+.hero p{color:var(--muted);margin-top:10px;font-size:17px;max-width:620px}
+.search{margin-top:26px;display:grid;grid-template-columns:1.3fr 1fr 1fr auto;background:#fff;border:1px solid var(--line);border-radius:999px;box-shadow:var(--shadow);overflow:hidden;max-width:860px}
+.search label{padding:12px 22px;display:flex;flex-direction:column;border-right:1px solid var(--line);min-width:0}
+.search label span{font-size:12px;font-weight:600}
+.search select,.search input{border:none;outline:none;background:transparent;font-size:14px;color:var(--muted);padding-top:2px;width:100%}
+.search .go{margin:8px;background:var(--brand);color:#fff;border-radius:999px;padding:0 26px;font-weight:600;display:flex;align-items:center;gap:8px}
+.search .go:hover{background:var(--brand-dark)}
+
+/* Filters */
+.chips{display:flex;gap:10px;overflow-x:auto;padding:22px 0 6px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{white-space:nowrap;border:1px solid var(--line);padding:9px 16px;border-radius:999px;font-size:14px;font-weight:500}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* Grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:28px 22px;padding:18px 0 60px}
+.card{cursor:pointer}
+.card .ph{position:relative;aspect-ratio:1/0.95;border-radius:var(--radius);overflow:hidden;background:var(--soft)}
+.card .ph .slides{display:flex;height:100%;transition:transform .35s ease}
+.card .ph .slides > div{flex:0 0 100%;height:100%}
+.card .ph svg,.card .ph img{width:100%;height:100%;display:block;object-fit:cover}
+.card .arrow{position:absolute;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.92);display:none;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.2);font-size:16px}
+.card .ph:hover .arrow{display:flex}
+.card .arrow.l{left:10px}.card .arrow.r{right:10px}
+.dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:5px}
+.dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.6)}
+.dots i.on{background:#fff}
+.badge{position:absolute;top:12px;left:12px;background:#fff;font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.heart{position:absolute;top:10px;right:12px;font-size:22px;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.4)}
+.heart.on{color:#e0475b}
+.card .meta{padding-top:10px;display:flex;justify-content:space-between;gap:10px}
+.card h3{font-size:15px;font-weight:600}
+.card .sub{color:var(--muted);font-size:14px}
+.card .price{margin-top:4px;font-size:15px}
+.card .price b{font-weight:600}
+.rating{font-size:14px;white-space:nowrap}
+
+/* Detail */
+#detail{display:none;padding:24px 0 80px}
+.back{display:inline-flex;align-items:center;gap:6px;font-weight:500;font-size:14px;padding:8px 0;margin-bottom:8px}
+.back:hover{text-decoration:underline}
+.d-title{font-size:clamp(22px,3.4vw,30px);letter-spacing:-.01em}
+.d-sub{display:flex;flex-wrap:wrap;gap:6px 14px;color:var(--ink);font-size:14px;margin-top:6px}
+.d-sub span{text-decoration:underline}
+.gallery{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;height:440px;margin-top:20px;border-radius:var(--radius);overflow:hidden;position:relative}
+.gallery > div{cursor:pointer;overflow:hidden;background:var(--soft)}
+.gallery > div:first-child{grid-row:1 / 3}
+.gallery svg,.gallery img{width:100%;height:100%;display:block;object-fit:cover;transition:filter .2s}
+.gallery > div:hover svg,.gallery > div:hover img{filter:brightness(.9)}
+.show-all{position:absolute;right:16px;bottom:16px;background:#fff;border:1px solid var(--ink);border-radius:8px;padding:7px 14px;font-size:14px;font-weight:600}
+.d-body{display:grid;grid-template-columns:1fr 380px;gap:64px;margin-top:32px}
+.d-main section{padding:26px 0;border-bottom:1px solid var(--line)}
+.d-main section:first-child{padding-top:0}
+.d-main h2{font-size:22px;margin-bottom:12px}
+.host{display:flex;align-items:center;gap:14px}
+.avatar{width:52px;height:52px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex:0 0 auto}
+.highlights{display:grid;gap:18px}
+.hl{display:flex;gap:16px}
+.hl .ic{font-size:22px;width:28px;text-align:center}
+.hl b{display:block;font-size:15px}
+.hl small{color:var(--muted);font-size:14px}
+.desc{white-space:pre-line;color:#333}
+.amen{display:grid;grid-template-columns:1fr 1fr;gap:12px 24px}
+.amen div{display:flex;gap:12px;align-items:center;font-size:15px}
+.rules li{margin:6px 0 6px 18px}
+.mapbox{height:260px;border-radius:var(--radius);background:
+  linear-gradient(90deg,rgba(0,0,0,.04) 1px,transparent 1px) 0 0/40px 40px,
+  linear-gradient(rgba(0,0,0,.04) 1px,transparent 1px) 0 0/40px 40px,#eef1ea;position:relative;overflow:hidden}
+.mapbox .pin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;background:rgba(31,95,74,.18);display:flex;align-items:center;justify-content:center}
+.mapbox .pin i{width:22px;height:22px;border-radius:50%;background:var(--brand);border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.mapbox .road{position:absolute;background:#fff;opacity:.9}
+
+/* Booking card */
+.book{position:sticky;top:96px;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px}
+.book .p{font-size:22px}
+.book .p b{font-weight:700}
+.book .p small{font-size:15px;color:var(--muted);font-weight:400}
+.datebox{margin-top:16px;border:1px solid #b9b9bd;border-radius:10px;overflow:hidden}
+.datebox .row{display:grid;grid-template-columns:1fr 1fr}
+.datebox button{text-align:left;padding:10px 12px}
+.datebox button + button{border-left:1px solid #b9b9bd}
+.datebox span{display:block;font-size:10px;font-weight:700;letter-spacing:.04em}
+.datebox em{font-style:normal;font-size:14px;color:var(--muted)}
+.datebox em.set{color:var(--ink)}
+.datebox .guests{border-top:1px solid #b9b9bd;padding:10px 12px;display:flex;justify-content:space-between;align-items:center}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper button{width:30px;height:30px;border-radius:50%;border:1px solid #b9b9bd;display:flex;align-items:center;justify-content:center;padding:0}
+.stepper button:disabled{opacity:.3;cursor:default}
+.reserve{width:100%;margin-top:14px;background:var(--brand);color:#fff;border-radius:10px;padding:14px;font-weight:600;font-size:16px}
+.reserve:hover{background:var(--brand-dark)}
+.reserve:disabled{background:#b9c9c2;cursor:not-allowed}
+.note{text-align:center;color:var(--muted);font-size:13px;margin-top:10px}
+.breakdown{margin-top:18px;display:grid;gap:10px;font-size:15px}
+.breakdown div{display:flex;justify-content:space-between}
+.breakdown u{text-decoration:underline;color:#333}
+.breakdown .tot{border-top:1px solid var(--line);padding-top:14px;font-weight:700}
+.minstay{margin-top:10px;font-size:13px;color:#a0522d;min-height:18px}
+
+/* Calendar */
+.cal{display:grid;grid-template-columns:1fr 1fr;gap:36px}
+.cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.cal-head b{font-size:15px}
+.cal-nav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.cal-nav:hover{background:var(--soft)}
+.cal-nav:disabled{opacity:.25}
+.dow,.days{display:grid;grid-template-columns:repeat(7,1fr);text-align:center}
+.dow span{font-size:12px;color:var(--muted);font-weight:600;padding-bottom:6px}
+.days button{aspect-ratio:1;font-size:14px;font-weight:500;border-radius:50%;position:relative}
+.days button:hover:not(:disabled){outline:1.5px solid var(--ink)}
+.days button:disabled{color:#c4c4c8;text-decoration:line-through;cursor:default}
+.days button.past{text-decoration:none}
+.days button.inrange{background:var(--soft);border-radius:0}
+.days button.start,.days button.end{background:var(--ink);color:#fff;border-radius:50%}
+.cal-foot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;gap:12px;flex-wrap:wrap}
+.cal-foot .clear{text-decoration:underline;font-weight:600;font-size:14px}
+.quick{display:flex;gap:8px;flex-wrap:wrap}
+.quick button{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:500}
+.quick button:hover{border-color:var(--ink)}
+
+/* Modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.sheet{background:#fff;border-radius:18px;max-width:720px;width:100%;max-height:92vh;overflow:auto;padding:26px;position:relative}
+.sheet.wide{max-width:760px}
+.x{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;font-size:18px;display:flex;align-items:center;justify-content:center}
+.x:hover{background:var(--soft)}
+.sheet h2{font-size:22px;margin-bottom:4px}
+.sheet .lead{color:var(--muted);font-size:14px;margin-bottom:18px}
+.form{display:grid;gap:12px}
+.form .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form label{display:grid;gap:4px;font-size:13px;font-weight:600}
+.form input,.form textarea{border:1px solid #b9b9bd;border-radius:10px;padding:12px;font-size:15px;font-weight:400;outline:none}
+.form input:focus,.form textarea:focus{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.summary{display:flex;gap:14px;padding:14px;border:1px solid var(--line);border-radius:12px;margin-bottom:16px;align-items:center}
+.summary .thumb{width:84px;height:72px;border-radius:10px;overflow:hidden;flex:0 0 auto}
+.summary .thumb svg,.summary .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.summary small{color:var(--muted);display:block;font-size:13px}
+.err{color:#c0392b;font-size:13px;min-height:16px}
+.success{text-align:center;padding:20px 0}
+.success .big{font-size:52px}
+.lightbox .sheet{max-width:960px;padding:52px 20px 20px}
+.lb-grid{display:grid;gap:10px}
+.lb-grid > div{border-radius:10px;overflow:hidden;aspect-ratio:3/2}
+.lb-grid svg,.lb-grid img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* Footer */
+footer{background:var(--soft);border-top:1px solid var(--line);padding:36px 0;font-size:14px;color:var(--muted)}
+footer .cols{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap}
+footer b{color:var(--ink)}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:40px 0}
+
+/* Mobile */
+@media (max-width:900px){
+  .d-body{grid-template-columns:1fr;gap:0}
+  .book{position:static;margin-top:20px}
+  .gallery{grid-template-columns:1fr;grid-template-rows:1fr;height:280px;margin-left:-20px;margin-right:-20px;border-radius:0}
+  .gallery > div:not(:first-child){display:none}
+}
+@media (max-width:720px){
+  .nav-links .hide-m{display:none}
+  .search{grid-template-columns:1fr;border-radius:18px}
+  .search label{border-right:none;border-bottom:1px solid var(--line)}
+  .search .go{justify-content:center;padding:14px}
+  .cal{grid-template-columns:1fr}
+  .cal .m2{display:none}
+  .amen{grid-template-columns:1fr}
+  .form .two{grid-template-columns:1fr}
+  .sheet{padding:22px 18px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" onclick="goHome()">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="10" fill="#1f5f4a"/><path d="M9 30V17l11-7 11 7v13h-7v-8h-8v8z" fill="#fff"/><circle cx="30" cy="11" r="4" fill="#e8b04b"/></svg>
+      <div>NY Monthly Apt Rentals<small>Furnished stays of 30+ nights</small></div>
+    </a>
+    <div class="nav-links">
+      <button class="hide-m" onclick="scrollToListings()">Apartments</button>
+      <button class="hide-m" onclick="openInfo()">How it works</button>
+      <button class="cta" onclick="openContact()">Contact</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- HOME -->
+  <div id="home">
+    <div class="hero">
+      <div class="wrap">
+        <h1>Furnished apartments in New York, by the month.</h1>
+        <p>Move-in-ready homes for work assignments, relocations, renovations and extended stays. Utilities, Wi-Fi and a fully equipped kitchen are included in every rental.</p>
+        <div class="search">
+          <label><span>Where</span>
+            <select id="fArea"><option value="">All locations</option></select>
+          </label>
+          <label><span>Move-in</span><input id="fDate" type="date"></label>
+          <label><span>Length of stay</span>
+            <select id="fMonths">
+              <option value="1">1 month</option><option value="2">2 months</option><option value="3">3 months</option>
+              <option value="4">4 months</option><option value="6">6 months</option><option value="12">12 months</option>
+            </select>
+          </label>
+          <button class="go" onclick="applySearch()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="wrap" id="listingsTop">
+      <div class="chips" id="chips"></div>
+      <div class="grid" id="grid"></div>
+    </div>
+  </div>
+
+  <!-- DETAIL -->
+  <div id="detail" class="wrap"></div>
+</main>
+
+<footer>
+  <div class="wrap cols">
+    <div><b>NY Monthly Apt Rentals</b><br>nymonthlyaptrentals.com<br>Managed by Portman Realty Inc.</div>
+    <div>All stays are 30 nights or longer.<br>© <span id="yr"></span> NY Monthly Apt Rentals</div>
+  </div>
+</footer>
+
+<!-- Calendar modal -->
+<div class="modal" id="calModal" onclick="if(event.target===this)closeModal('calModal')">
+  <div class="sheet wide">
+    <button class="x" onclick="closeModal('calModal')">✕</button>
+    <h2 id="calTitle">Select dates</h2>
+    <div class="lead" id="calLead">Minimum stay is 30 nights</div>
+    <div class="cal" id="cal"></div>
+    <div class="cal-foot">
+      <div class="quick" id="quick"></div>
+      <div style="display:flex;gap:16px;align-items:center">
+        <button class="clear" onclick="clearDates()">Clear dates</button>
+        <button class="reserve" style="width:auto;margin:0;padding:10px 22px" onclick="closeModal('calModal')">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Booking modal -->
+<div class="modal" id="bookModal" onclick="if(event.target===this)closeModal('bookModal')">
+  <div class="sheet"><button class="x" onclick="closeModal('bookModal')">✕</button><div id="bookBody"></div></div>
+</div>
+
+<!-- Lightbox -->
+<div class="modal lightbox" id="lbModal" onclick="if(event.target===this)closeModal('lbModal')">
+  <div class="sheet"><button class="x" onclick="closeModal('lbModal')">✕</button><div class="lb-grid" id="lbGrid"></div></div>
+</div>
+
+<!-- Info modal -->
+<div class="modal" id="infoModal" onclick="if(event.target===this)closeModal('infoModal')">
+  <div class="sheet"><button class="x" onclick="closeModal('infoModal')">✕</button><div id="infoBody"></div></div>
+</div>
+
+<script>
+/* =====================================================================
+   SETTINGS: edit these
+   ===================================================================== */
+const CONFIG = {
+  siteName: "NY Monthly Apt Rentals",
+  contactEmail: "info@nymonthlyaptrentals.com",   // TODO: your real email
+  contactPhone: "(212) 555-0100",                  // TODO: your real phone
+  // Where booking requests are sent. Create a free form at formspree.io
+  // and paste its URL here, e.g. "https://formspree.io/f/abcd1234".
+  // While this is blank, the site runs in preview mode and sends nothing.
+  bookingEndpoint: "",
+  minNights: 30,
+  hostName: "Danny",
+};
+
+/* =====================================================================
+   LISTINGS: SAMPLE DATA. Replace with your 7 real apartments.
+   photos: list of image file paths, e.g. ["photos/ues-1.jpg", ...]
+   Leave photos empty to show illustrated placeholders.
+   booked: date ranges already taken [["YYYY-MM-DD","YYYY-MM-DD"], ...]
+   ===================================================================== */
+const LISTINGS = [
+  { id:1, title:"Large Renovated 1BR with Washer/Dryer", area:"Financial District", type:"Entire apartment",
+    guests:3, beds:1, bedrooms:1, baths:1, sqft:null, monthly:4500 /* TODO: confirm price */, cleaning:200, deposit:1000,
+    rating:5.0, reviews:2, tag:"New", palette:["#e9e4dc","#3d4a5c","#c8a26a"],
+    airbnb:"https://www.airbnb.com/rooms/1562665833295970531",
+    blurb:"Renovated, light-filled one-bedroom in the Financial District, close to Wall Street and most subway lines.",
+    description:"A fully furnished, modern, open-concept apartment with stylish furniture, a fully equipped kitchen and lots of natural light. The bedroom has a king-size bed and a walk-in closet, and there's a washer/dryer right in the unit.\n\nIt works equally well for a work assignment or a longer stay, with high-speed Wi-Fi, a dedicated workspace and air conditioning in every room. You'll be greeted on arrival and have the whole apartment to yourself.",
+    amenities:["Wi-Fi (fast)","Full kitchen","Washer/dryer in unit","Air conditioning in every room","Dedicated workspace","King-size bed","Walk-in closet","Dishwasher","Smart TV","Heating"],
+    booked:[] },
+  { id:2, title:"Large Renovated 4BR, 2 Bath", area:"Upper West Side", type:"Entire apartment",
+    guests:8, beds:4, bedrooms:4, baths:2, sqft:null, monthly:9500 /* TODO: confirm price */, cleaning:350, deposit:2000,
+    rating:null, reviews:0, tag:"New", palette:["#dfe4ea","#8d9db3","#c9a46b"],
+    airbnb:"https://www.airbnb.com/rooms/1816964104969681365",
+    blurb:"Spacious four-bedroom between Central Park and Riverside Park, with subway, cafés and groceries nearby.",
+    description:"A spacious, renovated four-bedroom, two-bath apartment with bright living areas and a calm, residential feel. Every bedroom has plush bedding, and there's plenty of room for a family or a group sharing a longer stay.\n\nYou're close to both Central Park and Riverside Park, with cafés, restaurants, grocery stores and the subway all nearby.",
+    amenities:["Wi-Fi (fast)","Full kitchen","Air conditioning","Smart TV","Refrigerator","Heating"],
+    booked:[] },
+  { id:3, title:"Spacious Stylish 4BR, 2 Bath", area:"Upper West Side", type:"Entire apartment",
+    guests:8, beds:4, bedrooms:4, baths:2, sqft:null, monthly:9500 /* TODO: confirm price */, cleaning:350, deposit:2000,
+    rating:null, reviews:0, tag:"New", palette:["#ece7df","#2f3b4a","#d07a4f"],
+    airbnb:"https://www.airbnb.com/rooms/1816974796389845510",
+    blurb:"High-floor four-bedroom with modern art, near Central Park, Riverside Park and the subway.",
+    description:"A spacious, high-floor apartment with modern art and comfortable furnishings throughout. There are four bedrooms (two queens and two fulls) and two full baths, so it's a natural fit for families and groups.\n\nThe kitchen is fully equipped, Wi-Fi is fast, and linens and towels are provided. Central Park, Riverside Park, restaurants, shopping and several subway lines are all close by.",
+    amenities:["Wi-Fi (fast)","Full kitchen","Air conditioning","Smart TV","Hair dryer","Linens & towels","Heating"],
+    booked:[] },
+  { id:4, title:"Renovated 1BR with Private Terrace", area:"Upper East Side", type:"Entire apartment",
+    guests:2, beds:1, bedrooms:1, baths:1, sqft:null, monthly:4500 /* TODO: confirm price */, cleaning:200, deposit:1000,
+    rating:null, reviews:0, tag:"New", palette:["#e2ead9","#6f8f5a","#b5653d"],
+    airbnb:"https://www.airbnb.com/rooms/1634821770720440424",
+    blurb:"Sunny one-bedroom with a private terrace, in a full-service doorman building near Central Park.",
+    description:"A sunny, spacious, fully furnished one-bedroom with a private terrace right off the living room. The bedroom has a king-size bed, blackout shades and good closet space.\n\nIt's in a full-service doorman building with an elevator. High-speed internet, streaming TV, fresh linens and towels, and all utilities are included. Laundry is on the lower level for a small extra cost. Best for one or two people.",
+    amenities:["Wi-Fi (fast)","Full kitchen","Private terrace","Doorman","Elevator","Dedicated workspace","Smart TV with streaming","Blackout shades","Laundry in building (paid)","All utilities included"],
+    rules:["Minimum stay: 30 nights","No smoking indoors","No pets","No overnight guests beyond the booking, including on the couch","Please keep the apartment clean and respectful"],
+    booked:[] },
+  { id:5, draft:true, title:"Hudson Loft on Warren Street", area:"Hudson, NY", type:"Entire loft",
+    guests:4, beds:2, bedrooms:2, baths:2, sqft:1200, monthly:3400, cleaning:250, deposit:1000,
+    rating:4.97, reviews:31, tag:"Guest favorite", palette:["#efe6d6","#7a5c3e","#3f5f73"],
+    blurb:"Airy loft steps from Warren Street's shops and restaurants. Amtrak to NYC in two hours.",
+    description:"A sunny, open-plan loft with tall windows, wide-plank floors and two bedrooms, each with its own bathroom. It suits remote workers, couples and small families who want the Hudson Valley for a season.\n\nWarren Street's galleries, restaurants and antique shops are right outside, and the Amtrak station is a 10-minute walk.",
+    amenities:["Wi-Fi (fast)","Full kitchen","Washer/dryer in unit","Free parking","Air conditioning","Dedicated workspace","Smart TV","Heating"],
+    booked:[["2027-01-01","2027-03-01"]] },
+  { id:6, draft:true, title:"Hudson Victorian 3BR", area:"Hudson, NY", type:"Entire home",
+    guests:6, beds:4, bedrooms:3, baths:2, sqft:1800, monthly:4800, cleaning:300, deposit:1500,
+    rating:4.9, reviews:15, tag:"", palette:["#e7e1ec","#6d5a7e","#c3a36a"],
+    blurb:"Restored Victorian with a yard and porch, a few minutes' walk to town.",
+    description:"A lovingly restored Victorian with three bedrooms, a big eat-in kitchen, a front porch and a fenced back yard. There's room for a family, or for a team on a long project.\n\nIt's a quiet street, and downtown Hudson is a few minutes' walk away.",
+    amenities:["Wi-Fi (fast)","Full kitchen","Washer/dryer in unit","Free parking","Back yard","Dedicated workspace","Smart TV","Heating"],
+    booked:[] },
+  { id:7, draft:true, title:"Country House in Claverack", area:"Claverack, NY", type:"Entire home",
+    guests:6, beds:4, bedrooms:3, baths:2, sqft:2000, monthly:5200, cleaning:350, deposit:1500,
+    rating:4.96, reviews:22, tag:"New", palette:["#e3ebe4","#4f7a5a","#d4a65a"],
+    blurb:"Peaceful country home on open land, 10 minutes from Hudson.",
+    description:"Space, quiet and views. This country house has three bedrooms, a wood-burning fireplace, a big kitchen and a lawn for kids and dogs. It's a great base for a season in the Hudson Valley.\n\nHudson's restaurants and the Amtrak station are 10 minutes away by car.",
+    amenities:["Wi-Fi (fast)","Full kitchen","Washer/dryer in unit","Free parking","Fireplace","Dedicated workspace","Smart TV","Heating"],
+    booked:[["2027-06-01","2027-09-01"]] },
+];
+
+// Listings marked draft:true are hidden until real details are added.
+LISTINGS.splice(0, LISTINGS.length, ...LISTINGS.filter(l=>!l.draft));
+
+const RULES = ["Minimum stay: 30 nights","No smoking","No parties or events","No additional guests beyond the booking","Put garbage out on the building's collection days","Pets on request only"];
+
+/* =====================================================================
+   Helpers
+   ===================================================================== */
+const $ = s => document.querySelector(s);
+const fmt$ = n => "$" + Math.round(n).toLocaleString("en-US");
+const DAY = 86400000;
+const toISO = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const parseISO = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y,m-1,d); };
+const today = (()=>{ const t=new Date(); t.setHours(0,0,0,0); return t; })();
+const nightsBetween = (a,b) => Math.round((b-a)/DAY);
+const prettyDate = d => d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+const esc = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+let favs = new Set();
+try { favs = new Set(JSON.parse(localStorage.getItem("nymar_favs")||"[]")); } catch(e){}
+function saveFavs(){ try{ localStorage.setItem("nymar_favs", JSON.stringify([...favs])); }catch(e){} }
+
+/* Placeholder room illustrations, used until real photos are added */
+function roomSVG(p, v){
+  const [wall, main, accent] = p;
+  const scenes = [
+    // living room
+    `<rect width="400" height="380" fill="${wall}"/><rect y="290" width="400" height="90" fill="${shade(wall,-18)}"/>
+     <rect x="250" y="40" width="110" height="150" fill="#fff" opacity=".85"/><rect x="250" y="40" width="110" height="150" fill="none" stroke="${shade(wall,-30)}" stroke-width="6"/><line x1="305" y1="40" x2="305" y2="190" stroke="${shade(wall,-30)}" stroke-width="4"/>
+     <rect x="40" y="200" width="200" height="70" rx="14" fill="${main}"/><rect x="30" y="185" width="220" height="40" rx="14" fill="${shade(main,10)}"/>
+     <rect x="60" y="175" width="44" height="34" rx="8" fill="${accent}"/><rect x="170" y="175" width="44" height="34" rx="8" fill="${accent}" opacity=".8"/>
+     <ellipse cx="160" cy="320" rx="90" ry="16" fill="${shade(wall,-30)}" opacity=".5"/><rect x="120" y="290" width="80" height="12" rx="4" fill="${shade(main,-25)}"/>
+     <circle cx="345" cy="255" r="26" fill="#5f8a5c"/><rect x="335" y="270" width="20" height="30" fill="${accent}"/>`,
+    // bedroom
+    `<rect width="400" height="380" fill="${shade(wall,6)}"/><rect y="300" width="400" height="80" fill="${shade(wall,-16)}"/>
+     <rect x="90" y="150" width="220" height="40" rx="10" fill="${shade(main,-20)}"/><rect x="80" y="185" width="240" height="95" rx="10" fill="#fbfaf7"/>
+     <rect x="80" y="230" width="240" height="50" rx="8" fill="${main}"/><rect x="110" y="170" width="70" height="32" rx="10" fill="#fff"/><rect x="220" y="170" width="70" height="32" rx="10" fill="#fff"/>
+     <rect x="30" y="220" width="40" height="60" fill="${accent}"/><circle cx="50" cy="205" r="16" fill="#fff6d8"/>
+     <rect x="330" y="220" width="40" height="60" fill="${accent}"/><rect x="150" y="50" width="100" height="70" fill="${accent}" opacity=".5"/>`,
+    // kitchen
+    `<rect width="400" height="380" fill="${shade(wall,4)}"/><rect y="230" width="400" height="150" fill="${main}"/>
+     <rect y="222" width="400" height="14" fill="#f4f1ea"/><rect x="20" y="40" width="170" height="90" fill="${shade(main,15)}"/><rect x="210" y="40" width="170" height="90" fill="${shade(main,15)}"/>
+     <line x1="105" y1="40" x2="105" y2="130" stroke="${shade(main,-15)}" stroke-width="3"/><line x1="295" y1="40" x2="295" y2="130" stroke="${shade(main,-15)}" stroke-width="3"/>
+     <rect x="20" y="140" width="360" height="82" fill="#eeeae2"/><rect x="150" y="250" width="100" height="90" fill="#2d2d2d" opacity=".85"/>
+     <circle cx="80" cy="205" r="14" fill="${accent}"/><rect x="290" y="180" width="18" height="42" fill="${accent}"/>
+     <g stroke="${shade(main,-20)}" stroke-width="3"><line x1="60" y1="260" x2="60" y2="340"/><line x1="330" y1="260" x2="330" y2="340"/></g>`,
+    // bathroom
+    `<rect width="400" height="380" fill="#f2f2ef"/><g stroke="#e0dfda" stroke-width="2">${Array.from({length:10},(_,i)=>`<line x1="0" y1="${i*40}" x2="400" y2="${i*40}"/><line x1="${i*44}" y1="0" x2="${i*44}" y2="380"/>`).join("")}</g>
+     <rect x="40" y="220" width="200" height="90" rx="40" fill="#fff" stroke="#ddd" stroke-width="3"/><rect x="270" y="80" width="90" height="120" rx="10" fill="${shade(wall,-5)}" stroke="${accent}" stroke-width="6"/>
+     <rect x="270" y="210" width="90" height="100" fill="${main}"/><rect x="300" y="195" width="30" height="18" rx="6" fill="#fff"/>
+     <rect x="60" y="120" width="12" height="80" fill="${accent}"/><rect x="40" y="110" width="80" height="14" rx="6" fill="#ccc"/>`,
+    // exterior/view
+    `<rect width="400" height="380" fill="#cfe1ee"/><circle cx="320" cy="80" r="34" fill="#fff3c4"/>
+     <rect x="0" y="250" width="400" height="130" fill="#7d9a6a"/>
+     <rect x="40" y="140" width="80" height="140" fill="${shade(main,-10)}"/><rect x="130" y="100" width="120" height="180" fill="${main}"/><rect x="260" y="160" width="100" height="120" fill="${shade(accent,-15)}"/>
+     <g fill="#fff8e6">${Array.from({length:12},(_,i)=>`<rect x="${145+(i%3)*35}" y="${115+Math.floor(i/3)*38}" width="20" height="24"/>`).join("")}${Array.from({length:6},(_,i)=>`<rect x="${55+(i%2)*30}" y="${155+Math.floor(i/2)*38}" width="18" height="22"/>`).join("")}</g>
+     <circle cx="30" cy="250" r="30" fill="#5c7d4f"/><circle cx="380" cy="255" r="34" fill="#5c7d4f"/>`
+  ];
+  return `<svg viewBox="0 0 400 380" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">${scenes[v%scenes.length]}</svg>`;
+}
+function shade(hex, pct){
+  const n=parseInt(hex.slice(1),16); let r=n>>16,g=(n>>8)&255,b=n&255;
+  const f=pct/100; r=Math.min(255,Math.max(0,Math.round(r+(f>0?(255-r)*f:r*f))));
+  g=Math.min(255,Math.max(0,Math.round(g+(f>0?(255-g)*f:g*f)))); b=Math.min(255,Math.max(0,Math.round(b+(f>0?(255-b)*f:b*f))));
+  return "#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+}
+function photos(l){
+  if (l.photos && l.photos.length) return l.photos.map(src=>`<img src="${esc(src)}" alt="${esc(l.title)}" loading="lazy">`);
+  return [0,1,2,3,4].map(v=>roomSVG(l.palette,v));
+}
+
+/* Availability */
+function isBooked(l, d){
+  return l.booked.some(([a,b])=> d>=parseISO(a) && d<parseISO(b));
+}
+function rangeFree(l, a, b){
+  for (let t=a.getTime(); t<b.getTime(); t+=DAY){ if (isBooked(l,new Date(t))) return false; }
+  return true;
+}
+function firstAvailable(l){
+  let d=new Date(today);
+  for (let i=0;i<730;i++){ if (!isBooked(l,d) && rangeFree(l,d,new Date(d.getTime()+CONFIG.minNights*DAY))) return d; d=new Date(d.getTime()+DAY); }
+  return null;
+}
+
+/* =====================================================================
+   Home / grid
+   ===================================================================== */
+let filterArea = "", filterChip = "All";
+const CHIPS = ["All","Manhattan","Brooklyn","Hudson Valley","Pet-friendly","Family-size (3+ BR)","Available now"];
+
+function renderChips(){
+  $("#chips").innerHTML = CHIPS.map(c=>`<button class="chip ${c===filterChip?"on":""}" onclick="setChip('${c}')">${c}</button>`).join("");
+}
+function setChip(c){ filterChip=c; renderChips(); renderGrid(); }
+
+function matches(l){
+  if (filterArea && l.area!==filterArea) return false;
+  const manh=["Upper East Side","Upper West Side","Midtown","Financial District"].includes(l.area);
+  switch(filterChip){
+    case "Manhattan": return manh;
+    case "Brooklyn": return l.area==="Brooklyn";
+    case "Hudson Valley": return /NY$/.test(l.area);
+    case "Pet-friendly": return l.amenities.some(a=>/yard|patio/i.test(a));
+    case "Family-size (3+ BR)": return l.bedrooms>=3;
+    case "Available now": { const f=firstAvailable(l); return f && nightsBetween(today,f)<=7; }
+  }
+  return true;
+}
+
+function renderGrid(){
+  const list = LISTINGS.filter(matches);
+  if (!list.length){ $("#grid").innerHTML = `<div class="empty">No apartments match. Try another filter.</div>`; return; }
+  $("#grid").innerHTML = list.map(l=>{
+    const ph = photos(l), f = firstAvailable(l);
+    const avail = f ? (nightsBetween(today,f)<=7 ? "Available now" : "Available " + f.toLocaleDateString("en-US",{month:"short",day:"numeric"})) : "Fully booked";
+    return `<div class="card" onclick="openListing(${l.id})">
+      <div class="ph" data-i="0" data-n="${ph.length}">
+        <div class="slides">${ph.map(p=>`<div>${p}</div>`).join("")}</div>
+        ${l.tag?`<div class="badge">${esc(l.tag)}</div>`:""}
+        <button class="heart ${favs.has(l.id)?"on":""}" onclick="event.stopPropagation();toggleFav(${l.id},this)" aria-label="Save">${favs.has(l.id)?"♥":"♡"}</button>
+        <button class="arrow l" onclick="event.stopPropagation();slide(this,-1)">‹</button>
+        <button class="arrow r" onclick="event.stopPropagation();slide(this,1)">›</button>
+        <div class="dots">${ph.map((_,i)=>`<i class="${i===0?"on":""}"></i>`).join("")}</div>
+      </div>
+      <div class="meta">
+        <div>
+          <h3>${esc(l.area)}</h3>
+          <div class="sub">${esc(l.title)}</div>
+          <div class="sub">${l.bedrooms?l.bedrooms+" bedroom"+(l.bedrooms>1?"s":""):"Studio"} · ${avail}</div>
+          <div class="price"><b>${fmt$(l.monthly)}</b> month</div>
+        </div>
+        <div class="rating">${l.rating?"★ "+l.rating.toFixed(2):"★ New"}</div>
+      </div>
+    </div>`;
+  }).join("");
+  // swipe support
+  document.querySelectorAll(".card .ph").forEach(ph=>{
+    let x0=null;
+    ph.addEventListener("touchstart",e=>{x0=e.touches[0].clientX},{passive:true});
+    ph.addEventListener("touchend",e=>{ if(x0===null) return; const dx=e.changedTouches[0].clientX-x0; if(Math.abs(dx)>40){ moveSlide(ph, dx<0?1:-1); ph.dataset.swiped="1"; setTimeout(()=>ph.dataset.swiped="",300);} x0=null; });
+    ph.addEventListener("click",e=>{ if(ph.dataset.swiped){ e.stopPropagation(); } },true);
+  });
+}
+function slide(btn,dir){ moveSlide(btn.closest(".ph"),dir); }
+function moveSlide(ph,dir){
+  const n=+ph.dataset.n; let i=(+ph.dataset.i+dir+n)%n; ph.dataset.i=i;
+  ph.querySelector(".slides").style.transform=`translateX(-${i*100}%)`;
+  ph.querySelectorAll(".dots i").forEach((d,k)=>d.classList.toggle("on",k===i));
+}
+function toggleFav(id,btn){
+  favs.has(id)?favs.delete(id):favs.add(id); saveFavs();
+  btn.classList.toggle("on",favs.has(id)); btn.textContent=favs.has(id)?"♥":"♡";
+}
+
+function applySearch(){
+  filterArea = $("#fArea").value;
+  const d = $("#fDate").value, m = +$("#fMonths").value;
+  if (d){ pending.start = parseISO(d); pending.end = new Date(pending.start); pending.end.setMonth(pending.end.getMonth()+m); }
+  else { pending.start=null; pending.end=null; }
+  renderGrid(); scrollToListings();
+}
+function scrollToListings(){ if(location.hash){ goHome(); } setTimeout(()=>$("#listingsTop").scrollIntoView({behavior:"smooth"}),50); }
+
+/* =====================================================================
+   Detail page
+   ===================================================================== */
+let cur = null;           // current listing
+let sel = {start:null,end:null,guests:1};
+let pending = {start:null,end:null}; // from home search
+let calMonth = null;
+
+function openListing(id){ location.hash = "listing-"+id; }
+function goHome(){ history.replaceState(null,"",location.pathname+location.search); route(); }
+
+function route(){
+  const m = location.hash.match(/^#listing-(\d+)$/);
+  if (m){
+    const l = LISTINGS.find(x=>x.id===+m[1]);
+    if (l){ showDetail(l); return; }
+  }
+  $("#detail").style.display="none"; $("#home").style.display="block";
+}
+window.addEventListener("hashchange", route);
+
+function showDetail(l){
+  cur = l;
+  sel = {start:null,end:null,guests:1};
+  if (pending.start && pending.end && rangeFree(l,pending.start,pending.end) && pending.start>=today){ sel.start=pending.start; sel.end=pending.end; }
+  $("#home").style.display="none"; $("#detail").style.display="block";
+  const ph = photos(l);
+  const bedTxt = l.bedrooms ? `${l.bedrooms} bedroom${l.bedrooms>1?"s":""}` : "Studio";
+  $("#detail").innerHTML = `
+    <button class="back" onclick="goHome()">‹ All apartments</button>
+    <h1 class="d-title">${esc(l.title)}</h1>
+    <div class="d-sub">${l.rating?`★ ${l.rating.toFixed(2)} · <span>${l.reviews} review${l.reviews===1?"":"s"}</span>`:"★ New listing"} · <span>${esc(l.area)}</span></div>
+    <div class="gallery">
+      ${ph.slice(0,5).map((p,i)=>`<div onclick="openLightbox()">${p}</div>`).join("")}
+      <button class="show-all" onclick="openLightbox()">▦ Show all photos</button>
+    </div>
+    <div class="d-body">
+      <div class="d-main">
+        <section>
+          <h2 style="margin-bottom:2px">${esc(l.type)} in ${esc(l.area)}</h2>
+          <div class="sub" style="color:var(--muted)">${l.guests} guests · ${bedTxt} · ${l.beds} bed${l.beds>1?"s":""} · ${l.baths} bath${l.baths>1?"s":""}${l.sqft?` · ${l.sqft.toLocaleString()} sq ft`:""}</div>
+        </section>
+        <section class="host">
+          <div class="avatar">${esc(CONFIG.hostName[0])}</div>
+          <div><b>Hosted by ${esc(CONFIG.hostName)}</b><div class="sub" style="color:var(--muted)">Professionally managed · Responds within a few hours</div></div>
+        </section>
+        <section class="highlights">
+          <div class="hl"><div class="ic">🗓️</div><div><b>Monthly stays</b><small>Simple monthly pricing. Utilities and Wi-Fi included.</small></div></div>
+          <div class="hl"><div class="ic">🛋️</div><div><b>Fully furnished</b><small>Bring a suitcase. Linens, towels and a stocked kitchen are ready.</small></div></div>
+          <div class="hl"><div class="ic">🔑</div><div><b>Self check-in</b><small>Keyless entry with instructions sent before arrival.</small></div></div>
+        </section>
+        <section><h2>About this place</h2><p class="desc">${esc(l.description)}</p></section>
+        <section><h2>What this place offers</h2><div class="amen">${l.amenities.map(a=>`<div>${amenIcon(a)} ${esc(a)}</div>`).join("")}</div></section>
+        <section>
+          <h2>Availability</h2>
+          <p class="sub" style="color:var(--muted);margin-bottom:12px">${l.booked.length?"Some dates are already booked. Pick open dates in the booking panel.":"Open for monthly bookings."}</p>
+          <button class="chip" onclick="openCal()">View calendar</button>
+        </section>
+        <section><h2>Where you'll be</h2>
+          <div class="mapbox"><div class="road" style="left:0;right:0;top:38%;height:12px"></div><div class="road" style="top:0;bottom:0;left:62%;width:10px"></div><div class="road" style="left:0;right:0;top:75%;height:8px"></div><div class="pin"><i></i></div></div>
+          <p style="margin-top:12px"><b>${esc(l.area)}</b></p><p class="sub" style="color:var(--muted)">${esc(l.blurb)} The exact address is shared after booking.</p>
+        </section>
+        <section style="border-bottom:none"><h2>House rules</h2><ul class="rules">${(l.rules||RULES).map(r=>`<li>${esc(r)}</li>`).join("")}</ul></section>
+      </div>
+      <aside><div class="book" id="book"></div></aside>
+    </div>`;
+  renderBook();
+  window.scrollTo(0,0);
+}
+
+function amenIcon(a){
+  const m=[[/wi-?fi/i,"📶"],[/kitchen/i,"🍳"],[/wash|laundry/i,"🧺"],[/air/i,"❄️"],[/work/i,"💻"],[/elevator/i,"🛗"],[/tv/i,"📺"],[/heat/i,"🔥"],[/doorman/i,"🛎️"],[/gym/i,"🏋️"],[/park/i,"🚗"],[/patio|yard/i,"🌿"],[/fireplace/i,"🪵"],[/crib/i,"👶"]];
+  for (const [r,i] of m) if (r.test(a)) return i; return "✓";
+}
+
+/* Booking card */
+function quote(){
+  if (!sel.start||!sel.end) return null;
+  const nights = nightsBetween(sel.start, sel.end);
+  const rent = cur.monthly/30*nights;
+  return { nights, rent, cleaning:cur.cleaning, deposit:cur.deposit, total: rent+cur.cleaning, dueNow: cur.monthly + cur.cleaning + cur.deposit };
+}
+function renderBook(){
+  const l=cur, q=quote();
+  const okLen = q && q.nights>=CONFIG.minNights;
+  const months = q ? (q.nights/30) : 0;
+  $("#book").innerHTML = `
+    <div class="p"><b>${fmt$(l.monthly)}</b> <small>/ month</small></div>
+    <div class="datebox">
+      <div class="row">
+        <button onclick="openCal()"><span>MOVE-IN</span><em class="${sel.start?"set":""}">${sel.start?prettyDate(sel.start):"Add date"}</em></button>
+        <button onclick="openCal()"><span>MOVE-OUT</span><em class="${sel.end?"set":""}">${sel.end?prettyDate(sel.end):"Add date"}</em></button>
+      </div>
+      <div class="guests">
+        <div><span style="font-size:10px;font-weight:700;letter-spacing:.04em;display:block">GUESTS</span><em style="font-style:normal;font-size:14px">${sel.guests} guest${sel.guests>1?"s":""}</em></div>
+        <div class="stepper">
+          <button onclick="setGuests(-1)" ${sel.guests<=1?"disabled":""}>−</button>
+          <button onclick="setGuests(1)" ${sel.guests>=l.guests?"disabled":""}>+</button>
+        </div>
+      </div>
+    </div>
+    <button class="reserve" onclick="${q?(okLen?"openBooking()":"openCal()"):"openCal()"}" ${q&&!okLen?"disabled":""}>${q?(okLen?"Reserve":"Minimum 30 nights"):"Check availability"}</button>
+    <div class="note">${q&&okLen?"You won't be charged yet":"Max "+l.guests+" guests"}</div>
+    ${q&&okLen?`
+    <div class="breakdown">
+      <div><u>${fmt$(l.monthly)} × ${months%1===0?months:months.toFixed(1)} month${months===1?"":"s"}</u><span>${fmt$(q.rent)}</span></div>
+      <div><u>Cleaning fee</u><span>${fmt$(q.cleaning)}</span></div>
+      <div class="tot"><span>Total rent + fees</span><span>${fmt$(q.total)}</span></div>
+      <div style="font-size:13px;color:var(--muted)"><span>Refundable security deposit</span><span>${fmt$(q.deposit)}</span></div>
+    </div>`:""}`;
+}
+function setGuests(d){ sel.guests=Math.max(1,Math.min(cur.guests,sel.guests+d)); renderBook(); }
+
+/* =====================================================================
+   Calendar
+   ===================================================================== */
+function openCal(){
+  calMonth = new Date((sel.start||today).getFullYear(), (sel.start||today).getMonth(), 1);
+  renderCal(); $("#calModal").classList.add("open");
+}
+function renderCal(){
+  const m1 = new Date(calMonth), m2 = new Date(calMonth.getFullYear(), calMonth.getMonth()+1, 1);
+  const canPrev = calMonth > new Date(today.getFullYear(), today.getMonth(), 1);
+  $("#cal").innerHTML = monthHTML(m1, true, canPrev) + monthHTML(m2, false, false, true);
+  const q = quote();
+  $("#calTitle").textContent = q ? `${q.nights} nights` : (sel.start ? "Select move-out date" : "Select move-in date");
+  $("#calLead").textContent = q ? `${prettyDate(sel.start)} – ${prettyDate(sel.end)}${q.nights<CONFIG.minNights?" · minimum stay is 30 nights":""}` : `Minimum stay is ${CONFIG.minNights} nights`;
+  $("#quick").innerHTML = sel.start && !sel.end ? [1,2,3,6].map(n=>`<button onclick="quickMonths(${n})">${n} month${n>1?"s":""}</button>`).join("") : "";
+}
+function monthHTML(m, showPrev, canPrev, isSecond){
+  const y=m.getFullYear(), mo=m.getMonth(), first=new Date(y,mo,1).getDay(), dim=new Date(y,mo+1,0).getDate();
+  let cells = "";
+  for (let i=0;i<first;i++) cells += `<span></span>`;
+  for (let d=1; d<=dim; d++){
+    const dt = new Date(y,mo,d);
+    const past = dt < today;
+    const booked = isBooked(cur, dt);
+    let disabled = past || booked;
+    // when picking a move-out date, block anything past the next booked night
+    if (sel.start && !sel.end && dt > sel.start){ disabled = past || !rangeFree(cur, sel.start, dt); }
+    if (sel.start && !sel.end && dt.getTime()===sel.start.getTime()) disabled=false;
+    let cls = past ? "past" : "";
+    if (sel.start && dt.getTime()===sel.start.getTime()) cls+=" start";
+    if (sel.end && dt.getTime()===sel.end.getTime()) cls+=" end";
+    if (sel.start && sel.end && dt>sel.start && dt<sel.end) cls+=" inrange";
+    cells += `<button class="${cls}" ${disabled?"disabled":""} onclick="pickDay(${dt.getTime()})">${d}</button>`;
+  }
+  const title = m.toLocaleDateString("en-US",{month:"long",year:"numeric"});
+  return `<div class="${isSecond?"m2":""}">
+    <div class="cal-head">
+      ${showPrev?`<button class="cal-nav" onclick="shiftMonth(-1)" ${canPrev?"":"disabled"}>‹</button>`:`<span style="width:34px"></span>`}
+      <b>${title}</b>
+      ${isSecond||window.innerWidth<=720?`<button class="cal-nav" onclick="shiftMonth(1)">›</button>`:`<span style="width:34px"></span>`}
+    </div>
+    <div class="dow">${["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=>`<span>${d}</span>`).join("")}</div>
+    <div class="days">${cells}</div></div>`;
+}
+function shiftMonth(n){ calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth()+n, 1); renderCal(); }
+function pickDay(t){
+  const d = new Date(t);
+  if (!sel.start || sel.end || d <= sel.start){ sel.start=d; sel.end=null; }
+  else { sel.end = d; }
+  renderCal(); renderBook();
+}
+function quickMonths(n){
+  const e = new Date(sel.start); e.setMonth(e.getMonth()+n);
+  if (!rangeFree(cur, sel.start, e)){ $("#calLead").textContent = `${n} month${n>1?"s":""} isn't available from that date. Some nights are booked.`; return; }
+  sel.end = e; renderCal(); renderBook();
+}
+function clearDates(){ sel.start=null; sel.end=null; renderCal(); renderBook(); }
+
+/* =====================================================================
+   Booking request
+   ===================================================================== */
+function openBooking(){
+  const q = quote(), ph = photos(cur)[0];
+  $("#bookBody").innerHTML = `
+    <h2>Request to book</h2>
+    <div class="lead">Send your request. ${esc(CONFIG.hostName)} will confirm availability and send the lease and payment details, usually within a few hours.</div>
+    <div class="summary">
+      <div class="thumb">${ph}</div>
+      <div><b>${esc(cur.title)}</b><small>${prettyDate(sel.start)} – ${prettyDate(sel.end)} · ${q.nights} nights · ${sel.guests} guest${sel.guests>1?"s":""}</small><small>Total ${fmt$(q.total)} + ${fmt$(q.deposit)} refundable deposit</small></div>
+    </div>
+    <form class="form" id="bf" novalidate>
+      <div class="two">
+        <label>First name<input name="first" required autocomplete="given-name"></label>
+        <label>Last name<input name="last" required autocomplete="family-name"></label>
+      </div>
+      <div class="two">
+        <label>Email<input name="email" type="email" required autocomplete="email"></label>
+        <label>Phone<input name="phone" type="tel" required autocomplete="tel"></label>
+      </div>
+      <label>Reason for stay (optional)<input name="reason" placeholder="e.g. work assignment, relocation, renovation"></label>
+      <label>Message to host (optional)<textarea name="message" rows="3" placeholder="Tell us a little about who's staying"></textarea></label>
+      <div class="err" id="berr"></div>
+      <button class="reserve" type="submit" id="bsend">Send booking request</button>
+      <div class="note">You won't be charged until your booking is confirmed and the lease is signed.</div>
+    </form>`;
+  $("#bookModal").classList.add("open");
+  $("#bf").addEventListener("submit", submitBooking);
+}
+
+async function submitBooking(e){
+  e.preventDefault();
+  const f = e.target, data = Object.fromEntries(new FormData(f));
+  if (!data.first||!data.last||!data.phone||!/^\S+@\S+\.\S+$/.test(data.email||"")){ $("#berr").textContent="Please fill in your name, a valid email and a phone number."; return; }
+  const q = quote();
+  const payload = {
+    _subject: `Booking request: ${cur.title} (${toISO(sel.start)} to ${toISO(sel.end)})`,
+    listing: cur.title, listing_id: cur.id, move_in: toISO(sel.start), move_out: toISO(sel.end),
+    nights: q.nights, guests: sel.guests, rent: Math.round(q.rent), cleaning: q.cleaning, total: Math.round(q.total), deposit: q.deposit,
+    name: `${data.first} ${data.last}`, email: data.email, phone: data.phone, reason: data.reason||"", message: data.message||""
+  };
+  const btn = $("#bsend"); btn.disabled=true; btn.textContent="Sending…";
+  let sent = false, preview = !CONFIG.bookingEndpoint;
+  if (!preview){
+    try{
+      const r = await fetch(CONFIG.bookingEndpoint,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(payload)});
+      sent = r.ok;
+    }catch(err){ sent=false; }
+    if (!sent){ btn.disabled=false; btn.textContent="Send booking request"; $("#berr").innerHTML=`Your request couldn't be sent. Please try again, or email ${esc(CONFIG.contactEmail)}.`; return; }
+  }
+  $("#bookBody").innerHTML = `
+    <div class="success">
+      <div class="big">${preview?"🧪":"🎉"}</div>
+      <h2>${preview?"Preview mode: request not sent":"Request sent!"}</h2>
+      <p class="lead" style="margin-top:8px">${preview
+        ? "This is a preview, so nothing was sent. Once a booking form address is added in the site's settings, requests will arrive by email."
+        : `Thanks, ${esc(data.first)}. We'll confirm <b>${esc(cur.title)}</b> for ${prettyDate(sel.start)} – ${prettyDate(sel.end)} and email ${esc(data.email)} with the lease and payment details.`}</p>
+      <div class="summary" style="text-align:left;margin-top:12px">
+        <div class="thumb">${photos(cur)[0]}</div>
+        <div><b>${esc(cur.title)}</b><small>${q.nights} nights · ${sel.guests} guest${sel.guests>1?"s":""}</small><small>Total ${fmt$(q.total)} + ${fmt$(q.deposit)} deposit</small></div>
+      </div>
+      <button class="reserve" onclick="closeModal('bookModal');goHome()">Back to apartments</button>
+    </div>`;
+}
+
+/* =====================================================================
+   Misc modals
+   ===================================================================== */
+function openLightbox(){ $("#lbGrid").innerHTML = photos(cur).map(p=>`<div>${p}</div>`).join(""); $("#lbModal").classList.add("open"); }
+function closeModal(id){ $("#"+id).classList.remove("open"); }
+function openInfo(){
+  $("#infoBody").innerHTML = `<h2>How it works</h2><div class="lead">Furnished monthly rentals, made simple.</div>
+    <div class="highlights" style="margin-top:8px">
+      <div class="hl"><div class="ic">1️⃣</div><div><b>Pick an apartment and dates</b><small>Stays start at ${CONFIG.minNights} nights. Choose any move-in date that's open.</small></div></div>
+      <div class="hl"><div class="ic">2️⃣</div><div><b>Send a booking request</b><small>No payment yet. We confirm availability and answer any questions.</small></div></div>
+      <div class="hl"><div class="ic">3️⃣</div><div><b>Sign and pay</b><small>We send a short-term lease. You pay the first month, the cleaning fee and a refundable deposit.</small></div></div>
+      <div class="hl"><div class="ic">4️⃣</div><div><b>Move in</b><small>Self check-in with keyless entry. Monthly rent is due on the same date each month.</small></div></div>
+    </div>`;
+  $("#infoModal").classList.add("open");
+}
+function openContact(){
+  $("#infoBody").innerHTML = `<h2>Contact us</h2><div class="lead">Questions about an apartment, corporate housing or longer stays?</div>
+    <p style="margin:10px 0"><b>Email:</b> <a href="mailto:${esc(CONFIG.contactEmail)}">${esc(CONFIG.contactEmail)}</a></p>
+    <p><b>Phone:</b> <a href="tel:${esc(CONFIG.contactPhone.replace(/[^\d+]/g,""))}">${esc(CONFIG.contactPhone)}</a></p>`;
+  $("#infoModal").classList.add("open");
+}
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") document.querySelectorAll(".modal.open").forEach(m=>m.classList.remove("open")); });
+
+/* Init */
+$("#yr").textContent = new Date().getFullYear();
+$("#fDate").min = toISO(today);
+[...new Set(LISTINGS.map(l=>l.area))].forEach(a=>{ const o=document.createElement("option"); o.value=a; o.textContent=a; $("#fArea").appendChild(o); });
+renderChips(); renderGrid(); route();
+</script>
+</body>
+</html>
